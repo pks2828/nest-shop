@@ -1,6 +1,7 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { ProductImage } from './product-image.entity';
 
-@Entity()
+@Entity({ name: 'products' })
 export class Product {
 
     @PrimaryGeneratedColumn('uuid')
@@ -47,6 +48,15 @@ export class Product {
         default: '{}'
     })
     tags: string[];
+
+    // images
+    @OneToMany(// un producto puede tener muchas imagenes
+        () => ProductImage,
+        (productImage) => productImage.product,
+        { cascade: true, eager: true }//El eager es para que traiga las imagenes cuando se traiga el producto por busqueda id 
+        //! OJO, slock y title no se puede usar eager por que es un query builder para eso se utiliza LEFTJOINANDSELECT
+    )
+    images?: ProductImage[]; // Arreglo de imagenes que pertenecen a este producto
 
 
     @BeforeInsert()
