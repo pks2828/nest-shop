@@ -7,6 +7,7 @@ import { PaginationDto } from '../common/dtos/pagination.dto';
 
 import { validate as isUUID } from "uuid";
 import { Product, ProductImage } from './entities';
+import { User } from '../auth/entities/user.entity';
 
 @Injectable()
 export class ProductsService {
@@ -25,7 +26,7 @@ export class ProductsService {
 
   ){}
 
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, user:User) {
 
     try {
       const { images = [], ...productDetails } = createProductDto; // aqui es rest
@@ -33,6 +34,7 @@ export class ProductsService {
       const product = this.productRepository.create({
         ...productDetails, // Aqui es spread, se crea una copia de productDetails
         images: images.map( image => this.productImageRepository.create({ url: image }) ), // Dentro del producto se crea un arreglo de imagenes
+        user, // Se asigna el usuario al producto
       }); // Crear una instancia de la entidad
 
       await this.productRepository.save(product); // Guardar en la base de datos
@@ -109,7 +111,7 @@ export class ProductsService {
   }
 
   // En este scope se hacen 3 consultas a la base de datos, una para buscar el producto, otra para borrar las imagenes y otra para guardar las nuevas imagenes.
-  async update(id: string, updateProductDto: UpdateProductDto) { 
+  async update(id: string, updateProductDto: UpdateProductDto, user:User) { 
 
     const { images, ...toUpdate } = updateProductDto;
 
@@ -135,7 +137,7 @@ export class ProductsService {
       } else {
 
       }
-      
+      product.user = user
       await queryRunner.manager.save(product);// Guardar en la base de datos el producto actualizado
       // await this.productRepository.save(product);// En este punto ya se ha cargado el producto con los datos de updateProductDto
 
