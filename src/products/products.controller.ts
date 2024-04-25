@@ -6,7 +6,10 @@ import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 import { User } from 'src/auth/entities/user.entity';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Product } from './entities';
 
+@ApiTags('Products')
 @Controller('products')
 // @Auth()  Si lo defino aqui se aplica a todas las rutas del controlador
 export class ProductsController {
@@ -14,6 +17,9 @@ export class ProductsController {
 
   @Post()
   @Auth( ) // Si lo defino aqui se aplica solo a esta ruta
+  @ApiResponse({ status: 201, description: 'Product was created', type: Product})
+  @ApiResponse({ status: 400, description: 'Bad Request'})
+  @ApiResponse({ status: 403, description: 'Forbidden. Token related'})
   create(
     @Body() createProductDto: CreateProductDto,
     @GetUser() user: User,
